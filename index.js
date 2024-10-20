@@ -11,6 +11,8 @@ const current = { x: 0, y: 0 };
 const last = { x: 0, y: 0 };
 const selection = { x: 0, y: 0, w: 0, y: 0, data: null };
 
+const training_string = "日本語";
+
 const config = {
 	color: "#000",
 	action: "pencil"
@@ -123,11 +125,10 @@ function update() {
 	ctx1.fillStyle = "white";
 	ctx1.fillRect(0, 0, c1.width, c1.height);
 
-	const text = "日本語";
 	const fontSize = 200;
 	ctx1.font = `${fontSize}px Arial`;
 	ctx1.fillStyle = "lightgray";
-	ctx1.fillText(text, 0, fontSize);
+	ctx1.fillText(training_string, 0, fontSize);
 }
 
 // Compare the user's drawing to the gold standard
@@ -139,11 +140,10 @@ function compare() {
 	ctx.fillStyle = "white";
 	ctx.fillRect(0, 0, c1.width, c1.height);
 
-	const text = "日本語";
 	const fontSize = 200;
 	ctx.font = `${fontSize}px Arial`;
 	ctx.fillStyle = "black";
-	ctx.fillText(text, 0, fontSize);
+	ctx.fillText(training_string, 0, fontSize);
 
 	const imageData = ctx1.getImageData(0, 0, c1.width, c1.height);
 	var data = imageData.data;
@@ -169,11 +169,15 @@ function compare() {
 
 	// Display accuracy as a "percentage"
 	let accuracy = Math.min(Math.max(1.0 - diff / max, 0.0), 1.0);
-	accuracy = 3.0 * Math.pow(accuracy, 2) - 2.0 * Math.pow(accuracy, 3); // smoothstep
+	accuracy = smoothstep(smoothstep(accuracy)) // Fudge factor
 	const label = document.getElementById("accuracy");
 	label.innerText = "Accuracy: " + Math.ceil(100.0 * accuracy) + "%"
 
 	delete offscreen;
+}
+
+function smoothstep(x) {
+	return 3.0 * Math.pow(x, 2) - 2.0 * Math.pow(x, 3);
 }
 
 function selectAction(action) {
@@ -199,11 +203,10 @@ function adjust(p) {
 	ctx.fillStyle = "white";
 	ctx.fillRect(0, 0, c1.width, c1.height);
 
-	const text = "日本語";
 	const fontSize = 200;
 	ctx.font = `${fontSize}px Arial`;
 	ctx.fillStyle = "black";
-	ctx.fillText(text, 0, fontSize);
+	ctx.fillText(training_string, 0, fontSize);
 
 	const imageData = ctx.getImageData(0, 0, c1.width, c1.height);
 	var data = imageData.data;
