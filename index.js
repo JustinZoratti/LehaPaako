@@ -120,8 +120,14 @@ function update() {
 	c1.width = c2.width = rect.width - 10;
 	c1.height = c2.height = rect.height - 10;
 
-	ctx1.fillStyle = "#fff";
+	ctx1.fillStyle = "white";
 	ctx1.fillRect(0, 0, c1.width, c1.height);
+
+	const text = "日本語";
+	const fontSize = 100;
+	ctx1.font = `${fontSize}px Arial`;
+	ctx1.fillStyle = "lightgray";
+	ctx1.fillText(text, 0, fontSize);
 }
 
 function selectAction(action) {
