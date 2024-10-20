@@ -1,30 +1,10 @@
-$blue: #0063ff;
-$darkblue: #1e5799;
-$lightblue: #7db9e8;
-
-$prefix: "http://mobius01.crios.bysh.me/dev/win/";
-
-@mixin image($x: 0, $y: 0) {
-	background-image: url("http://mobius01.crios.bysh.me/dev/win/paint.gif");
-	background-position: $x $y;
-	// background-size: 560px;
-}
-
-@mixin gradient() {
-	background: #7db9e8;
-	background: -moz-linear-gradient(top, $lightblue 0%, $blue 12%, $blue 86%, $darkblue 100%);
-	background: -webkit-linear-gradient(top, $lightblue 0%,$blue 12%,$blue 86%,$darkblue 100%);
-	background: linear-gradient(to bottom, $lightblue 0%,$blue 12%,$blue 86%,$darkblue 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7db9e8', endColorstr='#1e5799',GradientType=0 );
-}
-
 body {
-  margin: 0;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+	margin: 0;
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	font-family: "Tahoma";
 	font-size: 13px;
 }
@@ -32,7 +12,7 @@ body {
 button {
 	cursor: pointer;
 	border: none;
-	background-color: transparent;	
+	background-color: transparent;
 }
 
 ul {
@@ -47,114 +27,111 @@ li {
 }
 
 canvas {
-
+	width: 10;
+	height: 10;
 }
 
-$height: 80vh;
-$width: 80vw;
-$barheight: 30px;
-
 #window {
-	width: $width;
-	height: $height;
+	width: 80vw;
+	height: 80vh;
 	border-radius: 5px;
 	overflow: hidden;
 }
 
 #topbar {
 	width: 100%;
-	height: $barheight;
-	
-	background-image: url(#{$prefix}bar.png);
+	height: 30px;
+	background-image: url(http://mobius01.crios.bysh.me/dev/win/bar.png);
 	background-repeat: repeat-x;
-	
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	
-	.icon {
-		background-image: url(#{$prefix}logo.png);
-		width: 21px;
-		height: 30px;
-	}
-	
-	.text {
-		width: calc(#{$width} - 80px - 21px);
-		color: #fff;
-		padding: 0 10px;
-		font-weight: bold;
-		text-shadow: 1px 1px #000;
-	}
-	
-	.tools {
-		width: 80px;
-		button {
-			width: 21px;
-			height: 21px;
-			border: none;
-			
-			&.minimize {
-				@include image(-367px, -6px);
-			}
-			&.maximize {
-				@include image(-390px, -6px);
-			}			
-			&.close {
-				@include image(-413px, -6px);
-			}
-		}
-	}
+}
+
+#topbar .icon {
+	background-image: url(http://mobius01.crios.bysh.me/dev/win/logo.png);
+	width: 21px;
+	height: 30px;
+}
+
+#topbar .text {
+	width: calc(80vw - 80px - 21px);
+	color: #fff;
+	padding: 0 10px;
+	font-weight: bold;
+	text-shadow: 1px 1px #000;
+}
+
+#topbar .tools {
+	width: 80px;
+}
+
+#topbar .tools button {
+	width: 21px;
+	height: 21px;
+	border: none;
+}
+
+#topbar .tools button.minimize {
+	background-image: url("http://mobius01.crios.bysh.me/dev/win/paint.gif");
+	background-position: -367px -6px;
+}
+
+#topbar .tools button.maximize {
+	background-image: url("http://mobius01.crios.bysh.me/dev/win/paint.gif");
+	background-position: -390px -6px;
+}
+
+#topbar .tools button.close {
+	background-image: url("http://mobius01.crios.bysh.me/dev/win/paint.gif");
+	background-position: -413px -6px;
 }
 
 #top {
 	width: 100%;
 	background-color: #efe7d6;
 	border-bottom: 1px solid #a5a594;
-	
-	ul {
-		display: flex;
-		align-items: center;
-		padding: 0;
-		margin: 0;
-	}
-	
-	li {
-		list-style: none;
-	}
-	
-	button {
-		border: none;
-		background-color: transparent;
-		padding: 6px 6px;
-		font-size: 11px;
-		font-family: "MS Sans Serif";
-		
-		span {
-			text-decoration: underline;
-		}
-	}
+}
+
+#top ul {
+	display: flex;
+	align-items: center;
+	padding: 0;
+	margin: 0;
+}
+
+#top li {
+	list-style: none;
+}
+
+#top button {
+	border: none;
+	background-color: transparent;
+	padding: 6px 6px;
+	font-size: 11px;
+	font-family: "MS Sans Serif";
+}
+
+#top button span {
+	text-decoration: underline;
 }
 
 #main {
 	border-style: solid;
-	border-color: $blue;
+	border-color: #0063ff;
 	border-width: 0 5px 5px 5px;
 	box-sizing: border-box;
-	
 	display: flex;
-	// align-items: center;
 	justify-content: center;
 	flex-direction: column;
-	
 	width: 100%;
-	height: calc(#{$height} - #{$barheight});
+	height: calc(80vh - 30px);
 }
 
 #app {
 	display: flex;
 	align-items: center;
-
-	height: calc(#{$height} - #{$barheight} - 100px - 25px);
+	height: calc(80vh - 30px - 100px - 25px);
 }
 
 #left {
@@ -164,58 +141,98 @@ $barheight: 30px;
 	box-shadow: inset 0 1px #fff;
 }
 
-#tools {
-	ul {
-		flex-wrap: wrap;
-		padding: 3px;
-		
-		li {
-			width: 28px;
-			height: 28px;
-			box-sizing: border-box;
-			
-			button {
-				width: 100%;
-				height: 100%;
-				background-image: url(#{$prefix}tools.png);
-				border: 1px solid transparent;
-				border-radius: 5px;
-				box-sizing: border-box;
-				
-				&:disabled {
-					opacity: 0.2;
-				}
-				
-				&:hover, &.active {
-					background-color: #fff;
-					border: 1px solid #8696bc;
-				}
-			}
-			
-			$n: 0;
-			$inc: -25px;
-			$x: -2px;
-			$y: -2px;
-			
-			@for $i from 1 through 8 {
-				
-				&:nth-child(#{$n + $i}) {
-					button {
-						background-position: $x $y;
-					}
-				}
-				
-				&:nth-child(#{$n + $i + 1}) {
-					button {
-						background-position: $x + $inc $y;
-					}
-				}
-				
-				$y: $y + $inc;
-				$n: $n + 1;
-			}			
-		}
-	}
+#tools ul {
+	flex-wrap: wrap;
+	padding: 3px;
+}
+
+#tools ul li {
+	width: 28px;
+	height: 28px;
+	box-sizing: border-box;
+}
+
+#tools ul li button {
+	width: 100%;
+	height: 100%;
+	background-image: url(http://mobius01.crios.bysh.me/dev/win/tools.png);
+	border: 1px solid transparent;
+	border-radius: 5px;
+	box-sizing: border-box;
+}
+
+#tools ul li button:disabled {
+	opacity: 0.2;
+}
+
+#tools ul li button:hover,
+#tools ul li button.active {
+	background-color: #fff;
+	border: 1px solid #8696bc;
+}
+
+#tools ul li:nth-child(1) button {
+	background-position: -2px -2px;
+}
+
+#tools ul li:nth-child(2) button {
+	background-position: -27px -2px;
+}
+
+#tools ul li:nth-child(3) button {
+	background-position: -2px -27px;
+}
+
+#tools ul li:nth-child(4) button {
+	background-position: -27px -27px;
+}
+
+#tools ul li:nth-child(5) button {
+	background-position: -2px -52px;
+}
+
+#tools ul li:nth-child(6) button {
+	background-position: -27px -52px;
+}
+
+#tools ul li:nth-child(7) button {
+	background-position: -2px -77px;
+}
+
+#tools ul li:nth-child(8) button {
+	background-position: -27px -77px;
+}
+
+#tools ul li:nth-child(9) button {
+	background-position: -2px -102px;
+}
+
+#tools ul li:nth-child(10) button {
+	background-position: -27px -102px;
+}
+
+#tools ul li:nth-child(11) button {
+	background-position: -2px -127px;
+}
+
+#tools ul li:nth-child(12) button {
+	background-position: -27px -127px;
+}
+
+#tools ul li:nth-child(13) button {
+	background-position: -2px -152px;
+}
+
+#tools ul li:nth-child(14) button {
+	background-position: -27px -152px;
+}
+
+#tools ul li:nth-child(15) button {
+	background-position: -2px -177px;
+}
+
+#tools ul li:nth-child(16) button {
+	background-position: -27px -177px;
 }
 
 #right {
@@ -223,29 +240,29 @@ $barheight: 30px;
 	border: 5px solid #848484;
 	box-sizing: border-box;
 	height: 100%;
-	width: calc(#{$width} - 63px);
+	width: calc(80vw - 63px);
+}
 
-	&.line {
-		cursor: crosshair;
-	}
+#right.line {
+	cursor: crosshair;
+}
 
-	&.pencil {
-		cursor: url(#{$prefix}pencil.png) 0 24, auto;
-	}
+#right.pencil {
+	cursor: url(http://mobius01.crios.bysh.me/dev/win/pencil.png) 0 24, auto;
+}
 
-	&.dropper {
-		cursor: url(#{$prefix}dropper.png) 0 16, auto;
-	}
+#right.dropper {
+	cursor: url(http://mobius01.crios.bysh.me/dev/win/dropper.png) 0 16, auto;
+}
 
-	canvas {
-		position: absolute;
-		left: 0px;
-		top: 0px;
-	}
+#right canvas {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+}
 
-	#c2 {
-		pointer-events: none;
-	}
+#right #c2 {
+	pointer-events: none;
 }
 
 #c {
@@ -267,43 +284,37 @@ $barheight: 30px;
 	align-items: center;
 }
 
-@mixin shadow() {
-	box-shadow: inset 1px 1px #000;
-	border-style: solid;
-	border-width: 1px;
-	border-color: #adad9c lighten(#efe7d6, 5) lighten(#efe7d6, 5) #adad9c;		
-}
-
 #selected {
 	width: 42px;
 	height: 42px;
 	background-color: #eee;
-	@include shadow();
+	box-shadow: inset 1px 1px #000;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #adad9c #f6f2e8 #f6f2e8 #adad9c;
 	margin: 4px 2px 0 4px;
 	position: relative;
-	
-	div {
-		position: absolute;
-		
-		&:nth-child(2) {
-			left: 5px;
-			top: 5px;
-		}
-		
-		&:nth-child(1) {
-			right: 5px;
-			bottom: 5px;
-		}		
-	}
 }
 
-#selection {
-	ul {
-		width: 180px;
-		display: flex;
-		align-items: center;
-		flex-wrap: wrap;
-	}
+#selected div {
+	position: absolute;
+}
+
+#selected div:nth-child(2) {
+	left: 5px;
+	top: 5px;
+}
+
+#selected div:nth-child(1) {
+	right: 5px;
+	bottom: 5px;
+}
+
+#selection ul {
+	width: 180px;
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
 }
 
 .color {
@@ -311,80 +322,73 @@ $barheight: 30px;
 	width: 20px;
 	height: 20px;
 	background-color: #eee;
-	@include shadow();
+	box-shadow: inset 1px 1px #000;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #adad9c #f6f2e8 #f6f2e8 #adad9c;
 	padding: 0;
+}
 
-	$white: #fff;
-	$black: #000;
-	$grey: #aaa;
-	$red: #f00;
-	$yellow: #ff0;
-	$lime: #0f0;
-	$aqua: #0ff;
-	$blue: #00f;
-	$pink: #f0f;
+.color.black {
+	background-color: #000;
+}
 
-	&.black {
-		background-color: #000;
-	}
+.color.darkgrey {
+	background-color: #777;
+}
 
-	&.darkgrey {
-		background-color: darken($grey, 20);
-	}
+.color.darkred {
+	background-color: #900;
+}
 
-	&.darkred {
-		background-color: darken($red, 20);
-	}
+.color.darkyellow {
+	background-color: #990;
+}
 
-	&.darkyellow {
-		background-color: darken($yellow, 20);
-	}
+.color.darkgreen {
+	background-color: #090;
+}
 
-	&.darkgreen {
-		background-color: darken($lime, 20);
-	}
+.color.darkaqua {
+	background-color: #099;
+}
 
-	&.darkaqua {
-		background-color: darken($aqua, 20);
-	}
+.color.darkblue {
+	background-color: #009;
+}
 
-	&.darkblue {
-		background-color:darken($blue, 20);
-	}
+.color.darkpink {
+	background-color: #909;
+}
 
-	&.darkpink {
-		background-color: darken($pink, 20);
-	}
+.color.white {
+	background-color: #fff;
+}
 
-	&.white {
-		background-color: $white;
-	}
+.color.grey {
+	background-color: #aaa;
+}
 
-	&.grey {
-		background-color: $grey;
-	}
+.color.red {
+	background-color: #f00;
+}
 
-	&.red {
-		background-color: $red;
-	}
+.color.yellow {
+	background-color: #ff0;
+}
 
-	&.yellow {
-		background-color: $yellow;
-	}
+.color.green {
+	background-color: #0f0;
+}
 
-	&.green {
-		background-color: $lime;
-	}
+.color.aqua {
+	background-color: #0ff;
+}
 
-	&.aqua {
-		background-color: $aqua;
-	}
+.color.blue {
+	background-color: #00f;
+}
 
-	&.blue {
-		background-color: $blue;
-	}
-
-	&.pink {
-		background-color: $pink;
-	}				
+.color.pink {
+	background-color: #f0f;
 }
