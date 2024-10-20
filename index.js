@@ -180,6 +180,63 @@ function selectAction(action) {
 	}
 }
 
+function adjust(p) {
+	const offscreen = new OffscreenCanvas(c1.width, c2.height);
+	const ctx = offscreen.getContext('2d');
+	ctx.width = c1.width;
+	ctx.height = c1.height;
+	ctx.fillStyle = "white";
+	ctx.fillRect(0, 0, c1.width, c1.height);
+
+	const text = "日本語";
+	const fontSize = 200;
+	ctx.font = `${fontSize}px Arial`;
+	ctx.fillStyle = "black";
+	ctx.fillText(text, 0, fontSize);
+
+	const imageData = ctx.getImageData(0, 0, c1.width, c1.height);
+	var data = imageData.data;
+
+	count = 0;
+	xsum = 0;
+	ysum = 0;
+	for(let x = p.x - stroke; x < p.x + stroke; x++) {
+		if(x < 0) {
+			continue
+		}
+		if (x >= c1.width) {
+			continue
+		}
+		for(let y = p.y - stroke; y < p.y + stroke; y++) {
+			if(y < 0) {
+				continue
+			}
+			if (y >= c1.height) {
+				continue
+			}
+
+			if((y - p.y) * (y - p.y) + (x - p.x) * (x - p.x) > stroke * stroke) {
+				continue
+			}
+
+			let ind = Math.floor((y * c1.width + x) * 4);
+			if(!data[ind]) {
+				count++
+				xsum += x
+				ysum += y
+			}
+		}
+	}
+
+	delete offscreen;
+
+	if(count == 0) {
+		return p
+	}
+
+	return {x: xsum/count, y: ysum/count}
+}
+
 function draw(e) {
 	const pos = ceil(e.offsetX, e.offsetY);
 
@@ -188,6 +245,9 @@ function draw(e) {
 	if (down) {
 		let l = {x: last.x, y: last.y};
 		let p = {x: e.offsetX, y: e.offsetY};
+
+		l = adjust(l)
+		p = adjust(p)
 
 		/*
 		brezLine(
