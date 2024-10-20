@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <script defer src="index.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="window">
+        <div id="topbar">
+            <div class="icon"></div>
+            <div class="text"></div>
+            <div class="tools">
+                <button type="button" class="minimize"></button>
+                <button type="button" class="maximize"></button>
+                <button type="button" class="close"></button>
+            </div>
+        </div>
+        <div id="main">
+            <div id="top">
+                <ul>
+                    <li><button type="button"><span>F</span>ile</button></li>
+            <li><button type="button"><span>E</span>dit</button></li>
+    <li><button type="button"><span>V</span>iew</button></li>
+    <li><button type="button"><span>I</span>mage</button></li>
+    <li><button type="button"><span>C</span>olors</button></li>
+    <li><button type="button"><span>H</span>elp</button></li>
+                </ul>
+            </div>
+            <div id="app">
+                <div id="left">
+                    <div id="tools">
+                        <ul>
+                            <li><button type="button" disabled></button></li>
+                            <li><button type="button" data-action="select"></button></li>
+                            <li><button type="button" data-action="erase"></button></li>
+                            <li><button type="button" data-action="fill"></button></li>
+                            <li><button type="button" data-action="dropper"></button></li>
+                            <li><button type="button" disabled></button></li>
+                            <li><button type="button" data-action="pencil" class="active"></button></li>
+                            <li><button type="button" disabled></button></li>
+                            <li><button type="button" disabled></button></li>
+                            <li><button type="button" disabled></button></li>
+                            <li><button type="button" data-action="line"></button></li>
+                            <li><button type="button" disabled></button></li>
+                            <li><button type="button" data-action="square"></button></li>
+                            <li><button type="button" disabled></button></li>
+                            <li><button type="button" data-action="circle" disabled></button></li>
+                            <li><button type="button" disabled></button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="right">
+                    <canvas id="c1"></canvas>
+                    <canvas id="c2"></canvas>
+                </div>
+            </div>
+            <div id="bottom">
+                <div id="colors">
+                    <div id="selected">
+                        <div id="background"><button type="button" class="color white"></button></div>
+                        <div id="foreground"><button type="button" class="color black"></button></div>
+                    </div>
+                    <div id="selection">
+                        <ul>
+                            <li><button type="button" data-color="#000000" class="color black"></button></li>
+                            <li><button type="button" data-color="#777777" class="color darkgrey"></button></li>
+                            <li><button type="button" data-color="#990000" class="color darkred"></button></li>
+                            <li><button type="button" data-color="#999900" class="color darkyellow"></button></li>
+                            <li><button type="button" data-color="#009900" class="color darkgreen"></button></li>
+                            <li><button type="button" data-color="#009999" class="color darkaqua"></button></li>
+                            <li><button type="button" data-color="#000099" class="color darkblue"></button></li>
+                            <li><button type="button" data-color="#990099" class="color darkpink"></button></li>
+    
+                            
+                            <li><button type="button" data-color="#ffffff" class="color white"></button></li>
+                            <li><button type="button" data-color="#aaaaaa" class="color grey"></button></li>
+                            <li><button type="button" data-color="#ff0000" class="color red"></button></li>
+                            <li><button type="button" data-color="#ffff00" class="color yellow"></button></li>
+                            <li><button type="button" data-color="#00ff00" class="color green"></button></li>
+                            <li><button type="button" data-color="#00ffff" class="color aqua"></button></li>
+                            <li><button type="button" data-color="#0000ff" class="color blue"></button></li>
+                            <li><button type="button" data-color="#ff00ff" class="color pink"></button></li>
+    
+                        </ul>
+                    </div>
+                </div>
+                <div id="help"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
