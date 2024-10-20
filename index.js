@@ -130,6 +130,7 @@ function update() {
 	ctx1.fillText(text, 0, fontSize);
 }
 
+// Compare the user's drawing to the gold standard
 function compare() {
 	const offscreen = new OffscreenCanvas(c1.width, c2.height);
 	const ctx = offscreen.getContext('2d');
@@ -151,6 +152,7 @@ function compare() {
 	var data2 = imageData2.data;
 
 	let diff = 0;
+	let max = 0;
 	for (let y = 0; y < c1.height; y++) {
 		for (let x = 0; x < c1.width; x++) {
 			for (let ch = 0; ch < 4; ch++) {
@@ -158,10 +160,18 @@ function compare() {
 				if(data[pixelIndex] * data2[pixelIndex] < data[pixelIndex] + data2[pixelIndex]) {
 					diff++;
 				}
+				if(data2[pixelIndex] < 0xff) {
+					max++;
+				}
 			}
 		}
 	}
-	console.log("Diff:", diff);
+
+	// Display accuracy as a "percentage"
+	let accuracy = Math.min(Math.max(1.0 - diff / max, 0.0), 1.0);
+	accuracy = 3.0 * Math.pow(accuracy, 2) - 2.0 * Math.pow(accuracy, 3); // smoothstep
+	const label = document.getElementById("accuracy");
+	label.innerText = "Accuracy: " + Math.ceil(100.0 * accuracy) + "%"
 
 	delete offscreen;
 }
@@ -180,6 +190,7 @@ function selectAction(action) {
 	}
 }
 
+// Attract the cursor towards the center of mass of nearby text
 function adjust(p) {
 	const offscreen = new OffscreenCanvas(c1.width, c2.height);
 	const ctx = offscreen.getContext('2d');
