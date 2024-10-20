@@ -4,7 +4,7 @@ const c2 = document.getElementById("c2");
 const ctx1 = c1.getContext("2d");
 const ctx2 = c2.getContext("2d");
 const right = document.getElementById("right");
-const stroke = 5;
+const stroke = 16;
 const eraser = 30;
 let origin = { x: 0, y: 0 };
 const current = { x: 0, y: 0 };
@@ -26,10 +26,7 @@ let canDrawSelection = true;
 c1.addEventListener("mousedown", e => {
 	down = true;
 
-	const x = Math.ceil(e.offsetX / stroke) * stroke;
-	const y = Math.ceil(e.offsetY / stroke) * stroke;
-
-	origin = ceil(e.offsetX, e.offsetY);
+	origin = {x: e.offsetX, y: e.offsetY};
 
 	draw(e);
 });
@@ -44,6 +41,9 @@ c1.addEventListener("mousemove", e => {
 });
 
 window.addEventListener("mouseup", e => {
+
+	compare();
+
 	const canvas = e.target.closest("canvas");
 
 	if (canvas) {
@@ -124,10 +124,46 @@ function update() {
 	ctx1.fillRect(0, 0, c1.width, c1.height);
 
 	const text = "日本語";
-	const fontSize = 100;
+	const fontSize = 200;
 	ctx1.font = `${fontSize}px Arial`;
 	ctx1.fillStyle = "lightgray";
 	ctx1.fillText(text, 0, fontSize);
+}
+
+function compare() {
+	const offscreen = new OffscreenCanvas(c1.width, c2.height);
+	const ctx = offscreen.getContext('2d');
+	ctx.width = c1.width;
+	ctx.height = c1.height;
+	ctx.fillStyle = "white";
+	ctx.fillRect(0, 0, c1.width, c1.height);
+
+	const text = "日本語";
+	const fontSize = 200;
+	ctx.font = `${fontSize}px Arial`;
+	ctx.fillStyle = "black";
+	ctx.fillText(text, 0, fontSize);
+
+	const imageData = ctx1.getImageData(0, 0, c1.width, c1.height);
+	var data = imageData.data;
+
+	const imageData2 = ctx.getImageData(0, 0, c1.width, c1.height);
+	var data2 = imageData2.data;
+
+	let diff = 0;
+	for (let y = 0; y < c1.height; y++) {
+		for (let x = 0; x < c1.width; x++) {
+			for (let ch = 0; ch < 4; ch++) {
+				const pixelIndex = (y * c1.width + x) * 4 + ch;
+				if(data[pixelIndex] * data2[pixelIndex] < data[pixelIndex] + data2[pixelIndex]) {
+					diff++;
+				}
+			}
+		}
+	}
+	console.log("Diff:", diff);
+
+	delete offscreen;
 }
 
 function selectAction(action) {
@@ -150,8 +186,10 @@ function draw(e) {
 	ctx2.setLineDash([]);
 
 	if (down) {
-		const l = ceil(last.x - stroke, last.y - stroke);
-		const p = ceil(e.offsetX - stroke, e.offsetY - stroke);
+		let l = {x: last.x, y: last.y};
+		let p = {x: e.offsetX, y: e.offsetY};
+
+		/*
 		brezLine(
 			l.x,
 			l.y,
@@ -159,6 +197,23 @@ function draw(e) {
 			p.y,
 			ctx1
 		);
+		*/
+		// Begin a new path
+		ctx1.beginPath();
+
+		// Set the starting point of the line
+		ctx1.moveTo(l.x, l.y);
+
+		// Set the ending point of the line
+		ctx1.lineTo(p.x, p.y);
+
+		// Set the line style (optional)
+		ctx1.lineWidth = stroke;
+		ctx1.lineCap = 'round'; 
+		ctx1.strokeStyle = "black";
+
+		// Draw the line
+		ctx1.stroke();
 	} else {
 		ctx2.clearRect(0, 0, c2.width, c2.height);
 		const l = ceil(last.x - stroke, last.y - stroke);
