@@ -31,46 +31,7 @@ c1.addEventListener("mousedown", e => {
 
 	origin = ceil(e.offsetX, e.offsetY);
 
-	if (config.action === "pencil") {
-		draw(e);
-	}
-
-	if (config.action === "erase") {
-		erase(x - (eraser / 2), y - (eraser / 2));
-	}
-
-	if (config.action === "fill") {
-		// ctx1.fillStyle = config.color;
-		// ctx1.fillRect(0,0,c1.width,c1.height);
-
-		floodFill(origin.x, origin.y, config.color, 1);
-	}
-
-	if (config.action === "dropper") {
-		const hex = dropper(e);
-
-		const selection = document.getElementById("selection");
-		const buttons = [...selection.getElementsByTagName("button")];
-
-		for (const button of buttons) {
-			if (button.dataset.color === hex) {
-				const color = button.className.replace("color ", "");
-
-				document.getElementById("foreground").firstElementChild.className = `color ${color}`;
-
-				config.color = button.dataset.color;
-			}
-		}
-	}
-
-
-	if (config.action === "select") {
-		if (selection.data) {
-			selection.dragging = inSelection(e);
-		} else {
-			selection.active = true;
-		}
-	}
+	draw(e);
 });
 
 c1.addEventListener("mousemove", e => {
@@ -183,81 +144,19 @@ function draw(e) {
 	ctx2.setLineDash([]);
 
 	if (down) {
-		if (config.action === "pencil") {
-			const l = ceil(last.x - stroke, last.y - stroke);
-			const p = ceil(e.offsetX - stroke, e.offsetY - stroke);
-			brezLine(
-				l.x,
-				l.y,
-				p.x,
-				p.y,
-				ctx1
-			);
-		}
-
-		if (config.action === "line") {
-			const o1 = ceil(origin.x - stroke, origin.y - stroke);
-			const o2 = ceil(e.offsetX - stroke, e.offsetY - stroke);
-			ctx2.clearRect(0, 0, c2.width, c2.height);
-			brezLine(o1.x, o1.y, o2.x, o2.y, ctx2);
-		}
-
-		if (config.action === "square") {
-			drawSquare(ctx2);
-		}
-
-
-		if (config.action === "circle") {
-			drawCircle(ctx2);
-		}
-
-		if (config.action === "select") {
-			ctx2.clearRect(0, 0, c2.width, c2.height);
-
-			if (selection.active) {
-				selection.x = origin.x;
-				selection.y = origin.y;
-				selection.w = current.x - origin.x;
-				selection.h = current.y - origin.y;
-
-				drawSelection(selection.x, selection.y, selection.w, selection.h);
-			}
-
-			if (selection.dragging) {
-				if (selection.data) {
-					ctx1.clearRect(selection.x, selection.y, selection.w, selection.h);
-					ctx2.putImageData(selection.data, selection.x + (current.x - origin.x), selection.y + (current.y - origin.y));
-					drawSelection(selection.x + (current.x - origin.x), selection.y + (current.y - origin.y), selection.w, selection.h);
-				}
-			}
-		}
+		const l = ceil(last.x - stroke, last.y - stroke);
+		const p = ceil(e.offsetX - stroke, e.offsetY - stroke);
+		brezLine(
+			l.x,
+			l.y,
+			p.x,
+			p.y,
+			ctx1
+		);
 	} else {
-		if (config.action === "pencil" || config.action === "line" || config.action === "square") {
-			ctx2.clearRect(0, 0, c2.width, c2.height);
-			const l = ceil(last.x - stroke, last.y - stroke);
-			pixel(l.x, l.y, ctx2);
-		}
-	}
-
-	if (config.action === "dropper") {
 		ctx2.clearRect(0, 0, c2.width, c2.height);
-		ctx2.beginPath();
-		ctx2.lineWidth = 1;
-		ctx2.rect(pos.x - 0.5, pos.y - 0.5, stroke, stroke);
-		ctx2.stroke();
-		ctx2.closePath();
-	}
-
-	if (config.action === "erase") {
-		ctx2.clearRect(0, 0, c2.width, c2.height);
-		if (down) {
-			erase(pos.x - (eraser / 2), pos.y - (eraser / 2));
-		}
-
-		ctx2.beginPath();
-		ctx2.rect(pos.x - (eraser / 2), pos.y - (eraser / 2), eraser, eraser);
-		ctx2.stroke();
-		ctx2.closePath();
+		const l = ceil(last.x - stroke, last.y - stroke);
+		pixel(l.x, l.y, ctx2);
 	}
 }
 
