@@ -238,46 +238,17 @@ function adjust(p) {
 }
 
 function draw(e) {
-	const pos = ceil(e.offsetX, e.offsetY);
-
 	ctx2.setLineDash([]);
 
+	let p = {x: e.offsetX, y: e.offsetY};
+	p = adjust(p)
 	if (down) {
 		let l = {x: last.x, y: last.y};
-		let p = {x: e.offsetX, y: e.offsetY};
-
 		l = adjust(l)
-		p = adjust(p)
-
-		/*
-		brezLine(
-			l.x,
-			l.y,
-			p.x,
-			p.y,
-			ctx1
-		);
-		*/
-		// Begin a new path
-		ctx1.beginPath();
-
-		// Set the starting point of the line
-		ctx1.moveTo(l.x, l.y);
-
-		// Set the ending point of the line
-		ctx1.lineTo(p.x, p.y);
-
-		// Set the line style (optional)
-		ctx1.lineWidth = stroke;
-		ctx1.lineCap = 'round'; 
-		ctx1.strokeStyle = "black";
-
-		// Draw the line
-		ctx1.stroke();
+		brezLine(l.x, l.y, p.x, p.y, ctx1);
 	} else {
 		ctx2.clearRect(0, 0, c2.width, c2.height);
-		const l = ceil(last.x - stroke, last.y - stroke);
-		pixel(l.x, l.y, ctx2);
+		brezLine(p.x, p.y, p.x, p.y, ctx2);
 	}
 }
 
@@ -359,95 +330,22 @@ function pixel(x, y, ctx) {
 }
 
 function brezLine(x1, y1, x2, y2, ctx) {
+	// Begin a new path
+	ctx.beginPath();
 
-	// Iterators, counters required by algorithm
-	let x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
+	// Set the starting point of the line
+	ctx.moveTo(x1, y1);
 
-	// Calculate line deltas
-	dx = x2 - x1;
-	dy = y2 - y1;
+	// Set the ending point of the line
+	ctx.lineTo(x2, y2);
 
-	// Create a positive copy of deltas (makes iterating easier)
-	dx1 = Math.abs(dx);
-	dy1 = Math.abs(dy);
+	// Set the line style (optional)
+	ctx.lineWidth = stroke;
+	ctx.lineCap = 'round'; 
+	ctx.strokeStyle = "black";
 
-	// Calculate error intervals for both axis
-	px = 2 * dy1 - dx1;
-	py = 2 * dx1 - dy1;
-
-	// The line is X-axis dominant
-	if (dy1 <= dx1) {
-
-		// Line is drawn left to right
-		if (dx >= 0) {
-			x = x1;
-			y = y1;
-			xe = x2;
-		} else { // Line is drawn right to left (swap ends)
-			x = x2;
-			y = y2;
-			xe = x1;
-		}
-
-		pixel(x, y, ctx); // Draw first pixel
-
-		// Rasterize the line
-		for (i = 0; x < xe; i++) {
-			x = x + stroke;
-
-			// Deal with octants...
-			if (px < 0) {
-				px = px + 2 * dy1;
-			} else {
-				if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) {
-					y = y + stroke;
-				} else {
-					y = y - stroke;
-				}
-				px = px + 2 * (dy1 - dx1);
-			}
-
-			// Draw pixel from line span at
-			// currently rasterized position
-			pixel(x, y, ctx);
-		}
-
-	} else { // The line is Y-axis dominant
-
-		// Line is drawn bottom to top
-		if (dy >= 0) {
-			x = x1;
-			y = y1;
-			ye = y2;
-		} else { // Line is drawn top to bottom
-			x = x2;
-			y = y2;
-			ye = y1;
-		}
-
-		pixel(x, y, ctx); // Draw first pixel
-
-		// Rasterize the line
-		for (i = 0; y < ye; i++) {
-			y = y + stroke;
-
-			// Deal with octants...
-			if (py <= 0) {
-				py = py + 2 * dx1;
-			} else {
-				if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) {
-					x = x + stroke;
-				} else {
-					x = x - stroke;
-				}
-				py = py + 2 * (dx1 - dy1);
-			}
-
-			// Draw pixel from line span at
-			// currently rasterized position
-			pixel(x, y, ctx);
-		}
-	}
+	// Draw the line
+	ctx.stroke();
 }
 
 function dropper(e) {
