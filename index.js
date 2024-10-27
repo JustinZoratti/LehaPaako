@@ -4,12 +4,14 @@ const c2 = document.getElementById("c2");
 const ctx1 = c1.getContext("2d");
 const ctx2 = c2.getContext("2d");
 const right = document.getElementById("right");
-const stroke = 5;
+const stroke = 16;
 const eraser = 30;
 let origin = { x: 0, y: 0 };
 const current = { x: 0, y: 0 };
 const last = { x: 0, y: 0 };
 const selection = { x: 0, y: 0, w: 0, y: 0, data: null };
+
+const training_string = "日本語";
 
 const config = {
 	color: "#000",
@@ -26,51 +28,9 @@ let canDrawSelection = true;
 c1.addEventListener("mousedown", e => {
 	down = true;
 
-	const x = Math.ceil(e.offsetX / stroke) * stroke;
-	const y = Math.ceil(e.offsetY / stroke) * stroke;
+	origin = {x: e.offsetX, y: e.offsetY};
 
-	origin = ceil(e.offsetX, e.offsetY);
-
-	if (config.action === "pencil") {
-		draw(e);
-	}
-
-	if (config.action === "erase") {
-		erase(x - (eraser / 2), y - (eraser / 2));
-	}
-
-	if (config.action === "fill") {
-		// ctx1.fillStyle = config.color;
-		// ctx1.fillRect(0,0,c1.width,c1.height);
-
-		floodFill(origin.x, origin.y, config.color, 1);
-	}
-
-	if (config.action === "dropper") {
-		const hex = dropper(e);
-
-		const selection = document.getElementById("selection");
-		const buttons = [...selection.getElementsByTagName("button")];
-
-		for (const button of buttons) {
-			if (button.dataset.color === hex) {
-				const color = button.className.replace("color ", "");
-
-				document.getElementById("foreground").firstElementChild.className = `color ${color}`;
-
-				config.color = button.dataset.color;
-			}
-		}
-	}
-
-
-	if (config.action === "select") {
-		if (selection.data) {
-			selection.dragging = inSelection(e);
-		} else {
-			selection.active = true;
-		}
-	}
+	draw(e);
 });
 
 c1.addEventListener("mousemove", e => {
@@ -83,6 +43,9 @@ c1.addEventListener("mousemove", e => {
 });
 
 window.addEventListener("mouseup", e => {
+
+	compare();
+
 	const canvas = e.target.closest("canvas");
 
 	if (canvas) {
@@ -159,8 +122,62 @@ function update() {
 	c1.width = c2.width = rect.width - 10;
 	c1.height = c2.height = rect.height - 10;
 
-	ctx1.fillStyle = "#fff";
+	ctx1.fillStyle = "white";
 	ctx1.fillRect(0, 0, c1.width, c1.height);
+
+	const fontSize = 200;
+	ctx1.font = `${fontSize}px Arial`;
+	ctx1.fillStyle = "lightgray";
+	ctx1.fillText(training_string, 0, fontSize);
+}
+
+// Compare the user's drawing to the gold standard
+function compare() {
+	const offscreen = new OffscreenCanvas(c1.width, c2.height);
+	const ctx = offscreen.getContext('2d');
+	ctx.width = c1.width;
+	ctx.height = c1.height;
+	ctx.fillStyle = "white";
+	ctx.fillRect(0, 0, c1.width, c1.height);
+
+	const fontSize = 200;
+	ctx.font = `${fontSize}px Arial`;
+	ctx.fillStyle = "black";
+	ctx.fillText(training_string, 0, fontSize);
+
+	const imageData = ctx1.getImageData(0, 0, c1.width, c1.height);
+	var data = imageData.data;
+
+	const imageData2 = ctx.getImageData(0, 0, c1.width, c1.height);
+	var data2 = imageData2.data;
+
+	let diff = 0;
+	let max = 0;
+	for (let y = 0; y < c1.height; y++) {
+		for (let x = 0; x < c1.width; x++) {
+			for (let ch = 0; ch < 4; ch++) {
+				const pixelIndex = (y * c1.width + x) * 4 + ch;
+				if(data[pixelIndex] * data2[pixelIndex] < data[pixelIndex] + data2[pixelIndex]) {
+					diff++;
+				}
+				if(data2[pixelIndex] < 0xff) {
+					max++;
+				}
+			}
+		}
+	}
+
+	// Display accuracy as a "percentage"
+	let accuracy = Math.min(Math.max(1.0 - diff / max, 0.0), 1.0);
+	accuracy = smoothstep(smoothstep(accuracy)) // Fudge factor
+	const label = document.getElementById("accuracy");
+	label.innerText = "Accuracy: " + Math.ceil(100.0 * accuracy) + "%"
+
+	delete offscreen;
+}
+
+function smoothstep(x) {
+	return 3.0 * Math.pow(x, 2) - 2.0 * Math.pow(x, 3);
 }
 
 function selectAction(action) {
@@ -177,87 +194,75 @@ function selectAction(action) {
 	}
 }
 
-function draw(e) {
-	const pos = ceil(e.offsetX, e.offsetY);
+// Attract the cursor towards the center of mass of nearby text
+function adjust(p) {
+	const offscreen = new OffscreenCanvas(c1.width, c2.height);
+	const ctx = offscreen.getContext('2d');
+	ctx.width = c1.width;
+	ctx.height = c1.height;
+	ctx.fillStyle = "white";
+	ctx.fillRect(0, 0, c1.width, c1.height);
 
+	const fontSize = 200;
+	ctx.font = `${fontSize}px Arial`;
+	ctx.fillStyle = "black";
+	ctx.fillText(training_string, 0, fontSize);
+
+	const imageData = ctx.getImageData(0, 0, c1.width, c1.height);
+	var data = imageData.data;
+
+	count = 0;
+	xsum = 0;
+	ysum = 0;
+	for(let x = p.x - stroke; x < p.x + stroke; x++) {
+		if(x < 0) {
+			continue
+		}
+		if (x >= c1.width) {
+			continue
+		}
+		for(let y = p.y - stroke; y < p.y + stroke; y++) {
+			if(y < 0) {
+				continue
+			}
+			if (y >= c1.height) {
+				continue
+			}
+
+			if((y - p.y) * (y - p.y) + (x - p.x) * (x - p.x) > stroke * stroke) {
+				continue
+			}
+
+			let ind = Math.floor((y * c1.width + x) * 4);
+			if(!data[ind]) {
+				count++
+				xsum += x
+				ysum += y
+			}
+		}
+	}
+
+	delete offscreen;
+
+	if(count == 0) {
+		return p
+	}
+
+	return {x: xsum/count, y: ysum/count}
+}
+
+function draw(e) {
 	ctx2.setLineDash([]);
 
+	let p = {x: e.offsetX, y: e.offsetY};
+	p = adjust(p)
 	if (down) {
-		if (config.action === "pencil") {
-			const l = ceil(last.x - stroke, last.y - stroke);
-			const p = ceil(e.offsetX - stroke, e.offsetY - stroke);
-			brezLine(
-				l.x,
-				l.y,
-				p.x,
-				p.y,
-				ctx1
-			);
-		}
-
-		if (config.action === "line") {
-			const o1 = ceil(origin.x - stroke, origin.y - stroke);
-			const o2 = ceil(e.offsetX - stroke, e.offsetY - stroke);
-			ctx2.clearRect(0, 0, c2.width, c2.height);
-			brezLine(o1.x, o1.y, o2.x, o2.y, ctx2);
-		}
-
-		if (config.action === "square") {
-			drawSquare(ctx2);
-		}
-
-
-		if (config.action === "circle") {
-			drawCircle(ctx2);
-		}
-
-		if (config.action === "select") {
-			ctx2.clearRect(0, 0, c2.width, c2.height);
-
-			if (selection.active) {
-				selection.x = origin.x;
-				selection.y = origin.y;
-				selection.w = current.x - origin.x;
-				selection.h = current.y - origin.y;
-
-				drawSelection(selection.x, selection.y, selection.w, selection.h);
-			}
-
-			if (selection.dragging) {
-				if (selection.data) {
-					ctx1.clearRect(selection.x, selection.y, selection.w, selection.h);
-					ctx2.putImageData(selection.data, selection.x + (current.x - origin.x), selection.y + (current.y - origin.y));
-					drawSelection(selection.x + (current.x - origin.x), selection.y + (current.y - origin.y), selection.w, selection.h);
-				}
-			}
-		}
+		let l = {x: last.x, y: last.y};
+		l = adjust(l)
+		brezLine(l.x, l.y, p.x, p.y, ctx1);
 	} else {
-		if (config.action === "pencil" || config.action === "line" || config.action === "square") {
-			ctx2.clearRect(0, 0, c2.width, c2.height);
-			const l = ceil(last.x - stroke, last.y - stroke);
-			pixel(l.x, l.y, ctx2);
-		}
-	}
-
-	if (config.action === "dropper") {
 		ctx2.clearRect(0, 0, c2.width, c2.height);
-		ctx2.beginPath();
-		ctx2.lineWidth = 1;
-		ctx2.rect(pos.x - 0.5, pos.y - 0.5, stroke, stroke);
-		ctx2.stroke();
-		ctx2.closePath();
-	}
-
-	if (config.action === "erase") {
-		ctx2.clearRect(0, 0, c2.width, c2.height);
-		if (down) {
-			erase(pos.x - (eraser / 2), pos.y - (eraser / 2));
-		}
-
-		ctx2.beginPath();
-		ctx2.rect(pos.x - (eraser / 2), pos.y - (eraser / 2), eraser, eraser);
-		ctx2.stroke();
-		ctx2.closePath();
+		brezLine(p.x, p.y, p.x, p.y, ctx2);
 	}
 }
 
@@ -339,95 +344,22 @@ function pixel(x, y, ctx) {
 }
 
 function brezLine(x1, y1, x2, y2, ctx) {
+	// Begin a new path
+	ctx.beginPath();
 
-	// Iterators, counters required by algorithm
-	let x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
+	// Set the starting point of the line
+	ctx.moveTo(x1, y1);
 
-	// Calculate line deltas
-	dx = x2 - x1;
-	dy = y2 - y1;
+	// Set the ending point of the line
+	ctx.lineTo(x2, y2);
 
-	// Create a positive copy of deltas (makes iterating easier)
-	dx1 = Math.abs(dx);
-	dy1 = Math.abs(dy);
+	// Set the line style (optional)
+	ctx.lineWidth = stroke;
+	ctx.lineCap = 'round'; 
+	ctx.strokeStyle = "black";
 
-	// Calculate error intervals for both axis
-	px = 2 * dy1 - dx1;
-	py = 2 * dx1 - dy1;
-
-	// The line is X-axis dominant
-	if (dy1 <= dx1) {
-
-		// Line is drawn left to right
-		if (dx >= 0) {
-			x = x1;
-			y = y1;
-			xe = x2;
-		} else { // Line is drawn right to left (swap ends)
-			x = x2;
-			y = y2;
-			xe = x1;
-		}
-
-		pixel(x, y, ctx); // Draw first pixel
-
-		// Rasterize the line
-		for (i = 0; x < xe; i++) {
-			x = x + stroke;
-
-			// Deal with octants...
-			if (px < 0) {
-				px = px + 2 * dy1;
-			} else {
-				if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) {
-					y = y + stroke;
-				} else {
-					y = y - stroke;
-				}
-				px = px + 2 * (dy1 - dx1);
-			}
-
-			// Draw pixel from line span at
-			// currently rasterized position
-			pixel(x, y, ctx);
-		}
-
-	} else { // The line is Y-axis dominant
-
-		// Line is drawn bottom to top
-		if (dy >= 0) {
-			x = x1;
-			y = y1;
-			ye = y2;
-		} else { // Line is drawn top to bottom
-			x = x2;
-			y = y2;
-			ye = y1;
-		}
-
-		pixel(x, y, ctx); // Draw first pixel
-
-		// Rasterize the line
-		for (i = 0; y < ye; i++) {
-			y = y + stroke;
-
-			// Deal with octants...
-			if (py <= 0) {
-				py = py + 2 * dx1;
-			} else {
-				if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) {
-					x = x + stroke;
-				} else {
-					x = x - stroke;
-				}
-				py = py + 2 * (dx1 - dy1);
-			}
-
-			// Draw pixel from line span at
-			// currently rasterized position
-			pixel(x, y, ctx);
-		}
-	}
+	// Draw the line
+	ctx.stroke();
 }
 
 function dropper(e) {
